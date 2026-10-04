@@ -63,6 +63,11 @@ execute function public.deals_set_updated_at();
 -- proxied through the server, so direct table access is intentionally closed.
 alter table public.deals enable row level security;
 
+-- The API uses only the server-side service_role key. Grant it the exact
+-- table operations needed by public reads and admin CRUD; RLS stays enabled.
+grant usage on schema public to service_role;
+grant select, insert, update, delete on table public.deals to service_role;
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'deal-images',

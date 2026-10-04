@@ -138,11 +138,14 @@ function reportSupabaseError(
   if (
     code === "42P01" ||
     code === "PGRST205" ||
+    code === "42501" ||
     detail.includes("bucket not found")
   ) {
     res.status(503).json({
       error:
-        "DealSaver’s Supabase schema or image bucket is not set up yet. Run supabase/setup.sql in the Supabase SQL Editor, then retry.",
+        code === "42501"
+          ? "DealSaver’s Supabase server permissions are missing. Re-run supabase/setup.sql in the Supabase SQL Editor, then retry."
+          : "DealSaver’s Supabase schema or image bucket is not set up yet. Run supabase/setup.sql in the Supabase SQL Editor, then retry.",
     });
     return;
   }
