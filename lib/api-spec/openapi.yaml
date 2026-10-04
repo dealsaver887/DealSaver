@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: deals
+    description: Customer deal discovery and admin deal management
 paths:
   /healthz:
     get:
@@ -24,6 +26,142 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /deals:
+    get:
+      operationId: getDeals
+      tags: [deals]
+      summary: List customer-visible deals
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/DealCategory"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Active deals currently within their display dates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deal"
+  /admin/summary:
+    get:
+      operationId: getAdminSummary
+      tags: [deals]
+      summary: Get deal counts for the admin dashboard
+      responses:
+        "200":
+          description: Current deal totals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DealSummary"
+  /admin/deals:
+    get:
+      operationId: getAdminDeals
+      tags: [deals]
+      summary: List all deals for administration
+      responses:
+        "200":
+          description: All deals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deal"
+    post:
+      operationId: createDeal
+      tags: [deals]
+      summary: Create a deal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DealInput"
+      responses:
+        "201":
+          description: Created deal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+  /admin/deals/{id}:
+    patch:
+      operationId: updateDeal
+      tags: [deals]
+      summary: Update a deal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DealUpdate"
+      responses:
+        "200":
+          description: Updated deal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deal"
+    delete:
+      operationId: deleteDeal
+      tags: [deals]
+      summary: Delete a deal and its stored image
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Deleted deal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteDealResult"
+  /admin/deals/{id}/image:
+    post:
+      operationId: uploadDealImage
+      tags: [deals]
+      summary: Upload or replace a deal product image
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/DealImageUpload"
+      responses:
+        "200":
+          description: Uploaded image URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DealImageResult"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +171,194 @@ components:
           type: string
       required:
         - status
+    DealCategory:
+      type: string
+      enum:
+        - Electronics
+        - Home
+        - Beauty
+        - Health
+        - Clothing
+        - Kids
+        - Grocery
+        - Pets
+        - Other
+    Deal:
+      type: object
+      required:
+        - id
+        - product_name
+        - store
+        - category
+        - original_price
+        - sale_price
+        - affiliate_url
+        - image_url
+        - description
+        - start_date
+        - end_date
+        - is_featured
+        - is_hot
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        product_name:
+          type: string
+        store:
+          type: string
+        category:
+          $ref: "#/components/schemas/DealCategory"
+        original_price:
+          type: number
+        sale_price:
+          type: number
+        affiliate_url:
+          type: string
+          format: uri
+        image_url:
+          type: ["string", "null"]
+          format: uri
+        description:
+          type: ["string", "null"]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: ["string", "null"]
+          format: date
+        is_featured:
+          type: boolean
+        is_hot:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    DealInput:
+      type: object
+      required:
+        - product_name
+        - store
+        - category
+        - original_price
+        - sale_price
+        - affiliate_url
+        - start_date
+      properties:
+        product_name:
+          type: string
+          minLength: 1
+        store:
+          type: string
+          minLength: 1
+        category:
+          $ref: "#/components/schemas/DealCategory"
+        original_price:
+          type: number
+          exclusiveMinimum: 0
+        sale_price:
+          type: number
+          minimum: 0
+        affiliate_url:
+          type: string
+          format: uri
+        description:
+          type: ["string", "null"]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: ["string", "null"]
+        is_featured:
+          type: boolean
+        is_hot:
+          type: boolean
+        is_active:
+          type: boolean
+        image_url:
+          type: ["string", "null"]
+          format: uri
+    DealUpdate:
+      type: object
+      properties:
+        product_name:
+          type: string
+          minLength: 1
+        store:
+          type: string
+          minLength: 1
+        category:
+          $ref: "#/components/schemas/DealCategory"
+        original_price:
+          type: number
+          exclusiveMinimum: 0
+        sale_price:
+          type: number
+          minimum: 0
+        affiliate_url:
+          type: string
+          format: uri
+        description:
+          type: ["string", "null"]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: ["string", "null"]
+        is_featured:
+          type: boolean
+        is_hot:
+          type: boolean
+        is_active:
+          type: boolean
+        image_url:
+          type: ["string", "null"]
+          format: uri
+    DealSummary:
+      type: object
+      required:
+        - total
+        - active
+        - featured
+        - hidden
+      properties:
+        total:
+          type: integer
+        active:
+          type: integer
+        featured:
+          type: integer
+        hidden:
+          type: integer
+    DealImageUpload:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          format: binary
+    DealImageResult:
+      type: object
+      required:
+        - image_url
+      properties:
+        image_url:
+          type: string
+          format: uri
+    DeleteDealResult:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
 

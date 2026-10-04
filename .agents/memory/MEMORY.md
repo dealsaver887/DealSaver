@@ -1,0 +1,1 @@
+- [Deal data rules](dealsaver-rules.md) — only admin-entered deals; an empty end date means no expiry.

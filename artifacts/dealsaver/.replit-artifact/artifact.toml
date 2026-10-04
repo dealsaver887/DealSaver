@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "DealSaver"
+description = "A mobile-first daily deals app for browsing hand-curated retailer offers, with secure admin tools for managing deals and Supabase-hosted product images."
+version = "1.0.0"
+id = "artifacts/dealsaver"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21481
+
+[services.development]
+run = "pnpm --filter @workspace/dealsaver run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/dealsaver", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/dealsaver/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21481"
+BASE_PATH = "/"
