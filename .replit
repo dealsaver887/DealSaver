@@ -21,3 +21,9 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+SUPABASE_URL = "https://eozcocdnzzzttewzpnat.supabase.co/"
+DEALSAVER_ADMIN_EMAIL = "JessicaR7688@yahoo.com"
