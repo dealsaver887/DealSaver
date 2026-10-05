@@ -1,0 +1,135 @@
+Let’s make the next major DealSaver home-page update.
+
+IMPORTANT: Preserve all existing working functionality, including the admin login, adding/testing deals, product images, affiliate links, and the current database setup. Do not rebuild or remove anything that already works.
+
+1. Make the existing header MUCH more compact
+
+The header wording is already correct. DO NOT change the wording or copy.
+
+Instead, focus entirely on reducing the visual size of the header.
+
+I want:
+
+* Much less vertical space
+* Less top and bottom padding
+* Smaller overall header footprint
+* Less empty space
+* The deals section moved much higher on the screen
+
+The goal is for DealSaver to feel like a shopping/deals app rather than a landing page.
+
+On a typical phone screen, users should get to the actual deals almost immediately.
+
+2. Add a clear deals section
+
+Immediately below the compact header, add:
+
+🔥 Today’s Top Deals
+
+This should feel like the main purpose of the app.
+
+3. Improve the deal cards
+
+Keep the existing deal functionality, but make the cards feel like a polished shopping/deals app.
+
+Each deal should prominently display:
+
+* Product image
+* Store name
+* Product/deal title
+* Original price, when available
+* Sale price
+* Amount or percentage saved, when available
+* A clear “Shop Deal” button
+
+The PRODUCT IMAGE itself must remain clickable and open the affiliate/product link.
+
+The “Shop Deal” button should also open the same affiliate/product link.
+
+Do not break the existing affiliate-link behavior.
+
+4. Make product images the visual focus
+
+Product images should be large enough to immediately communicate what the deal is.
+
+Use consistent image sizing so cards look clean even when product images have different dimensions.
+
+Do not distort product images.
+
+5. Add compact deal categories
+
+Prepare the home page for:
+
+* All Deals
+* Electronics
+* Home
+* Beauty
+* Clothing
+* Kids
+* Grocery
+* Health
+* Other
+
+Keep the category navigation compact and mobile-friendly.
+
+Do not create separate pages that I have to maintain manually.
+
+6. Keep the manual deal system
+
+I want to continue manually adding deals.
+
+Do NOT add an automatic product/API system.
+
+I want to be able to add approximately 20–50 deals per store.
+
+A deal should support:
+
+* Store
+* Product name
+* Product image
+* Original price
+* Sale price
+* Affiliate/product URL
+* Category
+* Optional expiration date
+* Optional deal description
+
+7. Store organization
+
+The app should support stores such as:
+
+Amazon
+Walmart
+Target
+CVS
+
+But do not hard-code the app so it only works with those stores. I need to be able to add additional stores later.
+
+8. Mobile-first design
+
+The primary experience is on a phone.
+
+Check the page at approximately 402×874.
+
+The goal is that when someone opens DealSaver, they immediately understand:
+
+“This is a deals app, and these are today’s deals.”
+
+Do not make users scroll through a large header or introduction before seeing products.
+
+9. Protect existing functionality
+
+Before finishing:
+
+* Verify admin login still works.
+* Verify adding a deal still works.
+* Verify product images still display.
+* Verify clicking the product image opens the product/affiliate link.
+* Verify the Shop Deal button opens the same link.
+* Verify existing database functionality still works.
+* Run the DealSaver typecheck.
+* Check the mobile preview.
+
+Do not change anything unrelated to this request.
+
+After completing the changes, tell me exactly what files/components were changed and confirm whether the existing deal-entry and affiliate-link functionality still works.

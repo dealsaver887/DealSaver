@@ -4,7 +4,7 @@ import { Search, ArrowUpRight, ShieldCheck, SlidersHorizontal, RotateCw, Sparkle
 import { getGetDealsQueryKey, useGetDeals } from '@workspace/api-client-react';
 import type { Deal, DealCategory } from '@workspace/api-client-react';
 
-const categories: Array<'All' | DealCategory> = ['All', 'Electronics', 'Home', 'Beauty', 'Health', 'Clothing', 'Kids', 'Grocery', 'Pets', 'Other'];
+const categories: Array<'All' | DealCategory> = ['All', 'Electronics', 'Home', 'Beauty', 'Clothing', 'Kids', 'Grocery', 'Health', 'Other', 'Pets'];
 const money = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 const percentOff = (deal: Deal) => Math.max(0, Math.round((1 - deal.sale_price / deal.original_price) * 100));
 
@@ -23,26 +23,31 @@ function DealArtwork({ deal }: { deal: Deal }) {
 
 function DealCard({ deal }: { deal: Deal }) {
   const savings = Math.max(0, deal.original_price - deal.sale_price);
-  return <a className="deal-card" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" data-testid={`card-deal-${deal.id}`} aria-label={`Shop ${deal.product_name} at ${deal.store}`}>
-    <div className="deal-visual">
-      <DealArtwork deal={deal} />
-      <div className="deal-badges">
-        {deal.is_featured && <span className="deal-badge featured" data-testid={`badge-featured-${deal.id}`}>Editor’s pick</span>}
-        {deal.is_hot && <span className="deal-badge hot" data-testid={`badge-hot-${deal.id}`}>Trending</span>}
+  return <article className="deal-card" data-testid={`card-deal-${deal.id}`}>
+    <a className="deal-visual-link" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" aria-label={`${deal.product_name} at ${deal.store}`} data-testid={`link-image-deal-${deal.id}`}>
+      <div className="deal-visual">
+        <DealArtwork deal={deal} />
+        <div className="deal-badges">
+          {deal.is_featured && <span className="deal-badge featured" data-testid={`badge-featured-${deal.id}`}>Editor’s pick</span>}
+          {deal.is_hot && <span className="deal-badge hot" data-testid={`badge-hot-${deal.id}`}>Trending</span>}
+        </div>
+        <div className="discount-stamp"><strong>{percentOff(deal)}%</strong><span>OFF</span></div>
       </div>
-      <div className="discount-stamp"><strong>{percentOff(deal)}%</strong><span>OFF</span></div>
-    </div>
+    </a>
     <div className="deal-card-body">
-      <div className="deal-card-kicker"><span>{deal.store}</span><span>{deal.category}</span></div>
-      <h3>{deal.product_name}</h3>
-      {deal.description && <p className="deal-description">{deal.description}</p>}
-      <div className="deal-card-bottom">
-        <div className="deal-prices"><strong>{money(deal.sale_price)}</strong><del>{money(deal.original_price)}</del></div>
-        <span className="save-amount">Save {money(savings)} <ArrowUpRight size={16} /></span>
-      </div>
-      {deal.end_date && <div className="deal-card-expiry">Offer ends {new Date(`${deal.end_date.slice(0, 10)}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+      <a className="deal-card-info" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" aria-label={`Shop ${deal.product_name} at ${deal.store}`}>
+        <div className="deal-card-kicker"><span>{deal.store}</span><span>{deal.category}</span></div>
+        <h3>{deal.product_name}</h3>
+        {deal.description && <p className="deal-description">{deal.description}</p>}
+        <div className="deal-card-bottom">
+          <div className="deal-prices"><strong>{money(deal.sale_price)}</strong><del>{money(deal.original_price)}</del></div>
+          <span className="save-amount">Save {money(savings)} <ArrowUpRight size={16} /></span>
+        </div>
+        {deal.end_date && <div className="deal-card-expiry">Offer ends {new Date(`${deal.end_date.slice(0, 10)}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>}
+      </a>
+      <a className="shop-deal-button" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" data-testid={`link-shop-deal-${deal.id}`}>Shop Deal <ArrowUpRight size={15} aria-hidden="true" /></a>
     </div>
-  </a>;
+  </article>;
 }
 
 export default function HomePage() {
@@ -79,7 +84,7 @@ export default function HomePage() {
     </section>
     <section className="deals-section" aria-labelledby="deals-title">
       <div className="section-heading">
-        <div><span className="eyebrow"><span className="eyebrow-line" /> THE LIVE EDIT</span><h2 id="deals-title"><Flame className="section-flame" size={25} aria-hidden="true" /> Today’s Hottest Deals<span>.</span></h2></div>
+        <div><span className="eyebrow"><span className="eyebrow-line" /> THE LIVE EDIT</span><h2 id="deals-title"><Flame className="section-flame" size={25} aria-hidden="true" /> Today’s Top Deals</h2></div>
         <div className="deal-count" data-testid="count-active-deals"><strong>{dealsQuery.isLoading ? '—' : apiDeals.length.toString().padStart(2, '0')}</strong><span>ACTIVE<br />OFFERS</span></div>
       </div>
       <div className="browse-tools">
@@ -87,7 +92,7 @@ export default function HomePage() {
         <span className="filter-caption"><SlidersHorizontal size={15} /> FILTER BY</span>
       </div>
       <div className="category-list" role="group" aria-label="Filter deals by category">
-        {categories.map((item) => <button key={item} className={`category-chip ${category === item ? 'selected' : ''}`} onClick={() => setCategory(item)} data-testid={`filter-category-${item.toLowerCase()}`} aria-pressed={category === item}>{item}</button>)}
+        {categories.map((item) => <button key={item} className={`category-chip ${category === item ? 'selected' : ''}`} onClick={() => setCategory(item)} data-testid={`filter-category-${item.toLowerCase()}`} aria-pressed={category === item}>{item === 'All' ? 'All Deals' : item}</button>)}
       </div>
       {dealsQuery.isLoading && <div className="deal-grid" data-testid="loading-deals">{Array.from({ length: 4 }).map((_, index) => <div className="deal-skeleton" key={index}><div className="skeleton-art" /><div className="skeleton-line wide" /><div className="skeleton-line" /><div className="skeleton-line short" /></div>)}</div>}
       {dealsQuery.isError && <div className="state-panel error-panel" data-testid="error-deals"><div className="state-icon"><RotateCw size={19} /></div><div><h3>Couldn’t load the current edit.</h3><p>{dealsQuery.error instanceof Error ? dealsQuery.error.message : 'Something interrupted the connection. Your filters are right where you left them.'}</p></div><button className="outline-button" onClick={() => dealsQuery.refetch()} data-testid="button-retry-deals">Try again <RotateCw size={14} /></button></div>}

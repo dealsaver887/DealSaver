@@ -1,0 +1,153 @@
+Let’s make the next major DealSaver home-page update.
+
+IMPORTANT: Preserve all existing working functionality, including the admin login, adding/testing deals, product images, affiliate links, and the current database setup. Do not rebuild or remove anything that already works.
+
+1. Make the header MUCH smaller
+
+The current header still takes up too much vertical space.
+
+Redesign it specifically for a mobile shopping/deals app.
+
+I want users to see actual deals almost immediately when the home page opens.
+
+Use this copy:
+
+DealSaver
+
+“The hottest deals, all in one place.”
+
+Do NOT use the previous wording:
+“A small, considered edit of deals worth your attention.”
+
+Also remove or greatly minimize the sentence:
+“Hand-picked deals, updated as things change.”
+
+The header should be compact, clean, and visually appealing.
+
+Reduce:
+
+* Header height
+* Top/bottom padding
+* Empty space
+* Large typography that pushes deals down
+* Unnecessary introductory text
+
+The first deal section should begin very close to the header.
+
+2. Add a clear deals section
+
+Immediately below the compact header, add:
+
+🔥 Today’s Top Deals
+
+This should feel like the main purpose of the app.
+
+The first deal should be visible on a typical phone screen without requiring the user to scroll through a large introduction.
+
+3. Improve the deal cards
+
+Keep the existing deal functionality, but make the cards feel like a polished shopping/deals app.
+
+Each deal should prominently display:
+
+* Product image
+* Store name
+* Product/deal title
+* Original price, when available
+* Sale price
+* Amount or percentage saved, when available
+* A clear “Shop Deal” button
+
+The PRODUCT IMAGE itself must remain clickable and open the affiliate/product link.
+
+The “Shop Deal” button should also open the same affiliate/product link.
+
+Do not break the existing affiliate-link behavior.
+
+4. Make the product image the visual focus
+
+The product image should be large enough to immediately communicate what the deal is.
+
+Use consistent image sizing so the deal grid/list looks clean even when products have different image dimensions.
+
+Do not distort product images.
+
+5. Add deal categories
+
+Prepare the home page for categories such as:
+
+* All Deals
+* Electronics
+* Home
+* Beauty
+* Clothing
+* Kids
+* Grocery
+* Health
+* Other
+
+Make the category navigation compact and mobile-friendly.
+
+Do not require me to manually create a separate page for every category.
+
+6. Keep the manual deal system
+
+I want to continue manually adding deals.
+
+Do NOT add an automatic product/API system.
+
+I want to be able to add approximately 20–50 deals per store and have them appear on the app.
+
+A deal should support:
+
+* Store
+* Product name
+* Product image
+* Original price
+* Sale price
+* Affiliate/product URL
+* Category
+* Optional expiration date
+* Optional deal description
+
+7. Store organization
+
+The app needs to be able to handle stores such as:
+
+Amazon
+Walmart
+Target
+CVS
+
+But design this so additional stores can easily be added later.
+
+Do not hard-code the app so it only works with these four stores.
+
+8. Mobile-first design
+
+The primary experience is on a phone.
+
+Check the page at approximately 402×874.
+
+The goal is that when someone opens DealSaver, they immediately understand:
+
+“This is a deals app, and these are today’s deals.”
+
+Do not make the user scroll through a large hero section before seeing products.
+
+9. Protect existing functionality
+
+Before finishing:
+
+* Verify admin login still works.
+* Verify adding a deal still works.
+* Verify product images still display.
+* Verify clicking the product image opens the product/affiliate link.
+* Verify the Shop Deal button opens the same link.
+* Verify existing database functionality still works.
+* Run the DealSaver typecheck.
+* Check the mobile preview.
+
+Do not change anything unrelated to this request.
+
+After completing the changes, tell me exactly what files/components were changed and confirm whether the existing deal-entry and affiliate-link functionality still works.
