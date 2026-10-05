@@ -9,6 +9,10 @@ import type { Deal, DealCategory, DealInput, DealUpdate } from '@workspace/api-c
 import { ArrowLeft, ArrowUpRight, BadgeCheck, CalendarDays, Check, ChevronDown, CircleAlert, Eye, EyeOff, Flame, ImagePlus, LoaderCircle, Pencil, Plus, RotateCw, ShieldCheck, Star, Trash2, UploadCloud, X } from 'lucide-react';
 
 const categories: DealCategory[] = ['Electronics', 'Home', 'Beauty', 'Health', 'Clothing', 'Kids', 'Grocery', 'Pets', 'Other'];
+const STORE_OPTIONS = ['Amazon', 'Walmart', 'Target', 'CVS', 'Other'] as const;
+type StoreChoice = '' | typeof STORE_OPTIONS[number];
+const storeChoiceFor = (store: string): StoreChoice =>
+  STORE_OPTIONS.includes(store as typeof STORE_OPTIONS[number]) ? store as StoreChoice : store ? 'Other' : '';
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 type FormValues = {
   product_name: string; store: string; category: DealCategory; original_price: string; sale_price: string;
@@ -38,6 +42,7 @@ function DealEditor({ deal, onClose, onSave, busy }: { deal: Deal | null; onClos
     is_featured: deal.is_featured, is_hot: deal.is_hot, is_active: deal.is_active, image_url: deal.image_url ?? '',
   } : blankForm() });
   const values = form.watch();
+  const [storeChoice, setStoreChoice] = useState<StoreChoice>(() => storeChoiceFor(deal?.store ?? ''));
   const [image, setImage] = useState<File | null>(null);
   const [imageError, setImageError] = useState('');
   const [submitError, setSubmitError] = useState('');
@@ -94,8 +99,13 @@ function DealEditor({ deal, onClose, onSave, busy }: { deal: Deal | null; onClos
       <Form {...form}><form className="editor-form" onSubmit={form.handleSubmit(submit)}>
         <div className="editor-main-fields">
           <label className="form-field span-two"><span>Product name <b>*</b></span><input value={values.product_name} onChange={(event) => set('product_name', event.target.value)} maxLength={180} required placeholder="e.g. Everyday Ceramic Pour-over" data-testid="input-product-name" /></label>
-          <label className="form-field"><span>Store <b>*</b></span><input value={values.store} onChange={(event) => set('store', event.target.value)} maxLength={100} required placeholder="Retailer name" data-testid="input-store" /></label>
+          <label className="form-field"><span>Store <b>*</b></span><span className="select-wrap"><select value={storeChoice} onChange={(event) => {
+            const choice = event.target.value as StoreChoice;
+            setStoreChoice(choice);
+            set('store', choice === 'Other' ? (storeChoice === 'Other' ? values.store : '') : choice);
+          }} required data-testid="select-store"><option value="" disabled>Select a store</option>{STORE_OPTIONS.map((store) => <option key={store} value={store}>{store}</option>)}</select><ChevronDown size={15} /></span></label>
           <label className="form-field"><span>Category</span><span className="select-wrap"><select value={values.category} onChange={(event) => set('category', event.target.value as DealCategory)} data-testid="select-category">{categories.map((item) => <option key={item} value={item}>{item}</option>)}</select><ChevronDown size={15} /></span></label>
+          {storeChoice === 'Other' && <label className="form-field span-two"><span>Custom store name <b>*</b></span><input value={values.store} onChange={(event) => set('store', event.target.value)} maxLength={100} required placeholder="Enter store name" data-testid="input-custom-store" /></label>}
           <label className="form-field"><span>Original price <b>*</b></span><span className="money-input"><span>$</span><input type="number" min="0.01" step="0.01" value={values.original_price} onChange={(event) => set('original_price', event.target.value)} required placeholder="0.00" data-testid="input-original-price" /></span></label>
           <label className="form-field"><span>Sale price <b>*</b></span><span className="money-input"><span>$</span><input type="number" min="0" step="0.01" value={values.sale_price} onChange={(event) => set('sale_price', event.target.value)} required placeholder="0.00" data-testid="input-sale-price" /></span></label>
           <label className="form-field span-two"><span>Retailer / affiliate URL <b>*</b></span><input type="url" value={values.affiliate_url} onChange={(event) => set('affiliate_url', event.target.value)} required placeholder="https://retailer.com/product" data-testid="input-affiliate-url" /></label>
