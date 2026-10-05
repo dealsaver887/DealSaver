@@ -59,7 +59,6 @@ export default function HomePage() {
   return <main className="public-shell">
     <header className="site-header">
       <Link href="/" className="wordmark" data-testid="link-home"><span className="brand-mark"><i /><i /><i /></span><span>deal<span className="wordmark-accent">saver</span></span></Link>
-      <small>Test</small>
       <nav className="header-nav" aria-label="Main navigation">
         <span className="header-note"><span className="live-dot" /> Hand-picked, never scraped</span>
         <Link href="/admin" className="quiet-link" data-testid="link-admin">Owner access <ArrowUpRight size={14} /></Link>
