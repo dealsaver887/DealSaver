@@ -68,8 +68,8 @@ export default function HomePage() {
       <div className="intro-copy">
         <span className="eyebrow"><span className="eyebrow-line" /> THE GOOD FINDS, RIGHT NOW</span>
         <h1>Good things.<br /><em>Better prices.</em></h1>
-        <p>A small, considered edit of deals worth your attention. Checked by a real person, updated as things change.</p>
-        <div className="intro-trust"><ShieldCheck size={16} /><span>Every offer is hand-checked before it lands here.</span></div>
+        <p>The hottest deals, all in one place.</p>
+        <div className="intro-trust"><ShieldCheck size={16} /><span>Hand-picked deals, updated as things change.</span></div>
       </div>
       <aside className="intro-aside">
         <div className="intro-orbit"><div className="orbit-inner"><span>DS</span><i /></div></div>

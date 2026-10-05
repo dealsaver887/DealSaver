@@ -459,7 +459,7 @@ a { color: inherit; text-decoration: none; }
 ::selection { background: #efbd91; color: var(--ink); }
 .public-shell { min-height: 100dvh; background: var(--paper); overflow: hidden; }
 .site-header, .site-footer, .admin-topbar { width: min(1180px, calc(100% - 72px)); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-.site-header { height: 84px; border-bottom: 1px solid var(--line); }
+.site-header { height: 68px; border-bottom: 1px solid var(--line); }
 .wordmark { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: 21px; font-weight: 800; letter-spacing: -1.4px; }
 .wordmark-accent { color: #a95e34; }
 .brand-mark { width: 27px; height: 27px; position: relative; display: inline-flex; align-items: flex-end; gap: 3px; padding: 4px; border-radius: 8px 8px 8px 2px; background: var(--deep); transform: rotate(-3deg); }
@@ -471,14 +471,14 @@ a { color: inherit; text-decoration: none; }
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #668f70; box-shadow: 0 0 0 3px #668f701c; }
 .quiet-link { display: inline-flex; gap: 6px; align-items: center; color: var(--ink); transition: color .2s ease; }
 .quiet-link:hover, .footer-owner:hover { color: #a95e34; }
-.home-intro { width: min(1180px, calc(100% - 72px)); min-height: 385px; margin: auto; display: grid; grid-template-columns: 1.4fr .6fr; align-items: center; position: relative; padding: 44px 0 48px; }
-.intro-copy { padding: 14px 0 0 7.2%; position: relative; z-index: 1; animation: enter-up .65s cubic-bezier(.2,.75,.25,1) both; }
+.home-intro { width: min(1180px, calc(100% - 72px)); min-height: 300px; margin: auto; display: grid; grid-template-columns: 1.4fr .6fr; align-items: center; position: relative; padding: 25px 0 30px; }
+.intro-copy { padding: 7px 0 0 7.2%; position: relative; z-index: 1; animation: enter-up .65s cubic-bezier(.2,.75,.25,1) both; }
 .eyebrow { display: flex; align-items: center; gap: 9px; color: #708078; font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; font-weight: 500; text-transform: uppercase; }
 .eyebrow-line { width: 18px; height: 1px; display: inline-block; background: #d78b56; }
-.intro-copy h1 { margin: 20px 0 15px; font-family: var(--font-display); font-size: clamp(54px, 6.8vw, 84px); font-weight: 500; letter-spacing: -.065em; line-height: .92; }
+.intro-copy h1 { margin: 14px 0 10px; font-family: var(--font-display); font-size: clamp(54px, 6.8vw, 84px); font-weight: 500; letter-spacing: -.065em; line-height: .92; }
 .intro-copy h1 em { color: #b5683e; font-weight: 500; }
-.intro-copy > p { max-width: 480px; color: #64736c; font-size: 13px; line-height: 1.8; }
-.intro-trust { margin-top: 21px; display: flex; align-items: center; gap: 8px; color: #526c5d; font-size: 10px; font-weight: 700; }
+.intro-copy > p { max-width: 480px; margin: 9px 0 0; color: #64736c; font-size: 13px; line-height: 1.55; }
+.intro-trust { margin-top: 13px; display: flex; align-items: center; gap: 8px; color: #526c5d; font-size: 10px; font-weight: 700; }
 .intro-aside { align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border-left: 1px solid var(--line); overflow: hidden; }
 .intro-aside::before { content: ''; width: 320px; height: 320px; position: absolute; border: 1px solid #ddd5c7; border-radius: 50%; }
 .intro-aside::after { content: ''; width: 240px; height: 240px; position: absolute; border: 1px dashed #d8cabb; border-radius: 50%; transform: rotate(25deg); }
@@ -490,7 +490,7 @@ a { color: inherit; text-decoration: none; }
 .intro-aside > p { z-index: 1; margin: 21px 0 0; text-align: center; font-size: 9px; letter-spacing: .12em; line-height: 1.8; color: #718079; }
 .intro-aside > p b { color: var(--ink); }
 .aside-index { position: absolute; bottom: 17px; z-index: 1; font: 8px var(--font-mono); letter-spacing: .08em; color: #8b948d; }
-.deals-section { border-top: 1px solid var(--line); background: #f1eee5; padding: 53px max(36px, calc((100vw - 1080px) / 2)) 29px; }
+.deals-section { border-top: 1px solid var(--line); background: #f1eee5; padding: 42px max(36px, calc((100vw - 1080px) / 2)) 29px; }
 .section-heading { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; }
 .section-heading h2 { font-family: var(--font-display); font-size: 39px; font-weight: 500; letter-spacing: -.045em; margin: 10px 0 0; }
 .section-heading h2 > span { color: #b5683e; }
@@ -623,9 +623,9 @@ a { color: inherit; text-decoration: none; }
   .auth-page { grid-template-columns: minmax(0, 1fr) minmax(400px, 1fr); }.auth-inner { grid-column: 2; }.auth-side-note { display: none; }
 }
 @media (max-width: 640px) {
-  .site-header, .site-footer { width: calc(100% - 34px); }.site-header { height: 66px; }.wordmark { font-size: 19px; }.header-nav { gap: 0; }.header-note { display: none; }.quiet-link { font-size: 9px; }
-  .home-intro { width: calc(100% - 34px); min-height: 0; grid-template-columns: 1fr; padding: 48px 0 36px; }.intro-copy { padding: 0; }.intro-copy h1 { font-size: clamp(56px, 15vw, 77px); margin-top: 17px; }.intro-copy > p { max-width: 350px; font-size: 12px; }.intro-aside { display: none; }
-  .deals-section { padding: 34px 17px 23px; }.section-heading { margin-bottom: 16px; }.section-heading h2 { font-size: 32px; }.deal-count { gap: 7px; }.deal-count strong { font-size: 25px; }.deal-count span { font-size: 7px; }.browse-tools { align-items: flex-end; gap: 12px; }.search-control { min-width: 0; flex: 1; height: 37px; }.filter-caption { font-size: 7px; padding-bottom: 10px; }.category-list { margin-right: -17px; padding-bottom: 17px; }
+  .site-header, .site-footer { width: calc(100% - 34px); }.site-header { height: 54px; }.wordmark { font-size: 19px; }.header-nav { gap: 0; }.header-note { display: none; }.quiet-link { font-size: 9px; }
+  .home-intro { width: calc(100% - 34px); min-height: 0; grid-template-columns: 1fr; padding: 20px 0 22px; }.intro-copy { padding: 0; }.intro-copy h1 { font-size: clamp(50px, 13vw, 64px); margin: 11px 0 8px; }.intro-copy > p { max-width: 350px; margin-top: 9px; font-size: 11px; line-height: 1.45; }.intro-trust { margin-top: 10px; font-size: 9px; }.intro-aside { display: none; }
+  .deals-section { padding: 20px 17px 23px; }.section-heading { margin-bottom: 12px; }.section-heading h2 { font-size: 32px; }.deal-count { gap: 7px; }.deal-count strong { font-size: 25px; }.deal-count span { font-size: 7px; }.browse-tools { align-items: flex-end; gap: 12px; }.search-control { min-width: 0; flex: 1; height: 37px; }.filter-caption { font-size: 7px; padding-bottom: 10px; }.category-list { margin-right: -17px; padding-bottom: 17px; }
   .deal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }.deal-visual { height: auto; aspect-ratio: 1 / .91; }.deal-card-body { padding: 11px 10px 10px; }.deal-card h3 { font-size: 13px; line-height: 1.25; }.deal-card-kicker { font-size: 7px; }.deal-description { display: none; }.deal-card-bottom { padding-top: 11px; align-items: flex-start; flex-direction: column; gap: 5px; }.deal-prices strong { font-size: 17px; }.deal-prices del { font-size: 9px; }.save-amount { font-size: 8px; }.deal-card-expiry { font-size: 7px; }.discount-stamp { width: 43px; height: 43px; right: 8px; bottom: 8px; }.discount-stamp strong { font-size: 14px; }.discount-stamp span { font-size: 6px; }.deal-badges { top: 8px; left: 8px; flex-direction: column; gap: 3px; }.deal-badge { font-size: 6px; padding: 5px 6px; }
   .state-panel { flex-wrap: wrap; gap: 11px; padding: 15px; }.state-panel > div:nth-child(2) { flex: 1; min-width: 150px; }.state-panel h3 { font-size: 12px; }.state-panel p { font-size: 9px; }.state-panel > .outline-button { margin-left: 51px; }.empty-panel, .admin-empty { min-height: 200px; }.deals-footer { flex-direction: column; gap: 7px; font-size: 7px; }.site-footer { height: 66px; }.site-footer > span { display: none; }
   .admin-topbar { height: 62px; padding: 0 17px; }.admin-top-right { gap: 9px; }.admin-secure { display: none; }.back-store { font-size: 9px; }.admin-sign-out { padding: 5px 6px; font-size: 8px; }.admin-content { width: calc(100% - 34px); }
