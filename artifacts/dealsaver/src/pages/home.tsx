@@ -50,11 +50,43 @@ function DealCard({ deal }: { deal: Deal }) {
   </article>;
 }
 
+function CuratedDealCard({ deal, section }: { deal: Deal; section: 'featured' | 'trending' }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  return <article className="curated-deal-card" data-testid={`card-${section}-deal-${deal.id}`}>
+    <a className="curated-image-link" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" aria-label={`${deal.product_name} at ${deal.store}`} data-testid={`link-${section}-image-${deal.id}`}>
+      {deal.image_url && !imageFailed
+        ? <img className="curated-image" src={deal.image_url} alt={deal.product_name} loading="lazy" onError={() => setImageFailed(true)} />
+        : <span className="curated-image-fallback" aria-label={`${deal.category} illustration`}>{deal.category}</span>}
+    </a>
+    <div className="curated-card-content">
+      <a className="curated-card-info" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" aria-label={`Shop ${deal.product_name} at ${deal.store}`}>
+        <span className="curated-card-store">{deal.store} <i>/</i> {deal.category}</span>
+        <strong>{deal.product_name}</strong>
+        <span className="curated-card-prices"><b>{money(deal.sale_price)}</b><del>{money(deal.original_price)}</del></span>
+      </a>
+      <a className="curated-shop-button" href={deal.affiliate_url} target="_blank" rel="noopener noreferrer" data-testid={`link-${section}-shop-${deal.id}`}>Shop Deal <ArrowUpRight size={13} aria-hidden="true" /></a>
+    </div>
+  </article>;
+}
+
+function CuratedSection({ title, section, deals }: { title: string; section: 'featured' | 'trending'; deals: Deal[] }) {
+  if (deals.length === 0) return null;
+  const titleId = `${section}-deals-title`;
+  return <section className="curated-section" aria-labelledby={titleId} data-testid={`section-${section}-deals`}>
+    <div className="curated-heading"><h2 id={titleId}>{title}</h2></div>
+    <div className="curated-strip" data-testid={`strip-${section}-deals`}>
+      {deals.map((deal) => <CuratedDealCard key={deal.id} deal={deal} section={section} />)}
+    </div>
+  </section>;
+}
+
 export default function HomePage() {
   const [category, setCategory] = useState<'All' | DealCategory>('All');
   const [search, setSearch] = useState('');
   const dealsQuery = useGetDeals(undefined, { query: { queryKey: getGetDealsQueryKey(), retry: false } });
   const apiDeals = dealsQuery.data ?? [];
+  const featuredDeals = useMemo(() => apiDeals.filter((deal) => deal.is_featured), [apiDeals]);
+  const trendingDeals = useMemo(() => apiDeals.filter((deal) => deal.is_hot), [apiDeals]);
   const deals = useMemo(() => apiDeals.filter((deal) => {
     const matchesCategory = category === 'All' || deal.category === category;
     const term = search.trim().toLocaleLowerCase();
@@ -100,6 +132,8 @@ export default function HomePage() {
       {!dealsQuery.isLoading && !dealsQuery.isError && deals.length === 0 && <div className="state-panel empty-panel" data-testid="empty-deals"><div className="empty-mark"><Sparkles size={22} /></div><span className="eyebrow">A LITTLE BREATHER</span><h3>{search || category !== 'All' ? 'Nothing in this corner just yet.' : 'The next good find is on its way.'}</h3><p>{search || category !== 'All' ? 'Try another search or category. We only show offers the owner has actually added.' : 'No active deals at the moment. Check back soon for the next hand-picked edit.'}</p>{(search || category !== 'All') && <button className="outline-button" onClick={() => { setSearch(''); setCategory('All'); }} data-testid="button-clear-filters">Clear filters</button>}</div>}
       <footer className="deals-footer"><span>MADE FOR PEOPLE WHO LIKE A GOOD FIND.</span><span>Prices and availability may change at the retailer.</span></footer>
     </section>
+    {!dealsQuery.isLoading && !dealsQuery.isError && <CuratedSection title="⭐ Editor’s Picks" section="featured" deals={featuredDeals} />}
+    {!dealsQuery.isLoading && !dealsQuery.isError && <CuratedSection title="🔥 Trending Now" section="trending" deals={trendingDeals} />}
     <footer className="site-footer"><Link href="/" className="wordmark small-wordmark" data-testid="link-footer-home"><span className="brand-mark"><i /><i /><i /></span><span>deal<span className="wordmark-accent">saver</span></span></Link><span>Good finds, thoughtfully gathered.</span><Link href="/sign-in" className="footer-owner" data-testid="link-owner-sign-in">Owner sign in</Link></footer>
   </main>;
 }
