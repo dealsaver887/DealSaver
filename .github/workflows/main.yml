@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: dealsaver-android
-        run: npm ci
+        run: npm install
 
       - name: Sync Capacitor Android
         working-directory: dealsaver-android
