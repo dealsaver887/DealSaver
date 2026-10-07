@@ -28,7 +28,7 @@ jobs:
       - name: Install Capacitor dependencies
         working-directory: dealsaver-android
         run: |
-          npm install --no-audit --no-fund 2>&1 | tee npm-install.log
+          npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund 2>&1 | tee npm-install.log
           exit ${PIPESTATUS[0]}
 
       - name: Show npm debug log
