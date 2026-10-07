@@ -27,7 +27,7 @@ jobs:
 
       - name: Install Capacitor dependencies
         working-directory: dealsaver-android
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Sync Capacitor Android
         working-directory: dealsaver-android
