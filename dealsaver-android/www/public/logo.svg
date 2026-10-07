@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 52" role="img" aria-label="DealSaver">
+  <rect x="1" y="4" width="42" height="42" rx="12" fill="#203c33"/>
+  <path d="M12 34V26h6v8m4 0V17h6v17m4 0V22h6v12" fill="none" stroke="#f0a46a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="57" y="37" fill="#263a34" font-family="Manrope, sans-serif" font-size="30" font-weight="800" letter-spacing="-1.7">deal<tspan fill="#a95e34">saver</tspan></text>
+</svg>
