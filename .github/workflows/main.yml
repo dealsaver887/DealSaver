@@ -21,10 +21,10 @@ jobs:
           java-version: '21'
 
       - name: Make Gradle executable
-        run: chmod +x android/gradlew
+        run: run: chmod +x dealsaver-android/android/gradlew
 
       - name: Build Debug APK
-        working-directory: android
+        working-directory: working-directory: dealsaver-android/android
         run: ./gradlew assembleDebug
 
       - name: Upload DealSaver APK
