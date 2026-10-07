@@ -31,6 +31,10 @@ jobs:
           npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
           npm install -D typescript --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
 
+      - name: Configure ES module support
+        working-directory: dealsaver-android
+        run: npm pkg set type=module
+
       - name: Sync Capacitor Android
         working-directory: dealsaver-android
         run: npx cap sync android
