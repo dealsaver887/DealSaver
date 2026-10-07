@@ -14,24 +14,11 @@ jobs:
       - name: Checkout DealSaver
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-
-      - name: Install dependencies
-        working-directory: dealsaver-android
-        run: npm install
-
-      - name: Sync Capacitor Android
-        working-directory: dealsaver-android
-        run: npx cap sync android
 
       - name: Make Gradle executable
         run: chmod +x dealsaver-android/android/gradlew
