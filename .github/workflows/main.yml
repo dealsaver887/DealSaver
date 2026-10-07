@@ -28,17 +28,8 @@ jobs:
       - name: Install Capacitor dependencies
         working-directory: dealsaver-android
         run: |
-          npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund 2>&1 | tee npm-install.log
-          exit ${PIPESTATUS[0]}
-
-      - name: Show npm debug log
-        if: failure()
-        working-directory: dealsaver-android
-        run: |
-          echo "===== npm install output ====="
-          cat npm-install.log || true
-          echo "===== npm debug logs ====="
-          cat ~/.npm/_logs/*-debug-0.log || true
+          npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
+          npm install -D typescript --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
 
       - name: Sync Capacitor Android
         working-directory: dealsaver-android
