@@ -24,7 +24,7 @@ jobs:
         run:  chmod +x dealsaver-android/android/gradlew
 
       - name: Build Debug APK
-        working-directory: working-directory: dealsaver-android/android
+        working-directory:  dealsaver-android/android
         run: ./gradlew assembleDebug
 
       - name: Upload DealSaver APK
