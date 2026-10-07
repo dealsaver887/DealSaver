@@ -1,0 +1,45 @@
+name: Create DealSaver Signing Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-signing-key:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create signing keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          keytool -genkeypair \
+            -v \
+            -keystore dealsaver-release.keystore \
+            -alias "$KEY_ALIAS" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "$KEY_PASSWORD" \
+            -dname "CN=DealSaver, OU=DealSaver, O=DealSaver, L=Chicago, ST=Illinois, C=US"
+
+      - name: Encrypt signing keystore
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          gpg --batch --yes \
+            --pinentry-mode loopback \
+            --passphrase "$KEYSTORE_PASSWORD" \
+            --symmetric \
+            --cipher-algo AES256 \
+            dealsaver-release.keystore
+
+          rm dealsaver-release.keystore
+
+      - name: Upload encrypted signing key
+        uses: actions/upload-artifact@v4
+        with:
+          name: DealSaver-Signing-Key
+          path: dealsaver-release.keystore.gpg
