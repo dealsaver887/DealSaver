@@ -46,21 +46,6 @@ jobs:
         run: |
           test -f dealsaver-release.keystore.gpg
 
-      - name: Test signing key decryption
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: |
-          gpg --batch \
-            --pinentry-mode loopback \
-            --passphrase "$KEYSTORE_PASSWORD" \
-            --decrypt \
-            --output /tmp/test-keystore \
-            dealsaver-release.keystore.gpg
-
-          keytool -list \
-            -keystore /tmp/test-keystore \
-            -storepass "$KEYSTORE_PASSWORD"
-
       - name: Decrypt signing keystore
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -72,9 +57,25 @@ jobs:
             --output dealsaver-release.keystore \
             dealsaver-release.keystore.gpg
 
-      - name: Verify decrypted keystore
+      - name: Verify keystore and signing key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          test -f dealsaver-release.keystore
+          echo "Checking keystore..."
+          keytool -list \
+            -keystore dealsaver-release.keystore \
+            -storepass "$KEYSTORE_PASSWORD"
+
+          echo "Checking signing key..."
+          keytool -list \
+            -keystore dealsaver-release.keystore \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias "$KEY_ALIAS" \
+            -keypass "$KEY_PASSWORD"
+
+          echo "Keystore and signing key check completed."
 
       - name: Build Release APK
         working-directory: dealsaver-android/android
