@@ -46,11 +46,26 @@ jobs:
         run: |
           test -f dealsaver-release.keystore.gpg
 
+      - name: Test signing key decryption
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          gpg --batch \
+            --pinentry-mode loopback \
+            --passphrase "$KEYSTORE_PASSWORD" \
+            --decrypt \
+            --output /tmp/test-keystore \
+            dealsaver-release.keystore.gpg
+
+          keytool -list \
+            -keystore /tmp/test-keystore \
+            -storepass "$KEYSTORE_PASSWORD"
+
       - name: Decrypt signing keystore
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          gpg --batch --yes \
+          gpg --batch \
             --pinentry-mode loopback \
             --passphrase "$KEYSTORE_PASSWORD" \
             --decrypt \
