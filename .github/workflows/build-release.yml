@@ -1,50 +1,20 @@
-name: Build DealSaver Android Release APK
+name: Test DealSaver Signing Key
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
-  build:
+  test-signing-key:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout DealSaver
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Install Capacitor dependencies
-        working-directory: dealsaver-android
-        run: |
-          npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
-          npm install -D typescript --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
-
-      - name: Configure ES module support
-        working-directory: dealsaver-android
-        run: npm pkg set type=module
-
-      - name: Sync Capacitor Android
-        working-directory: dealsaver-android
-        run: npx cap sync android
-
-      - name: Make Gradle executable
-        run: chmod +x dealsaver-android/android/gradlew
-
-      - name: Verify encrypted signing key
+      - name: Verify encrypted signing key exists
         run: |
           test -f dealsaver-release.keystore.gpg
+          echo "Encrypted signing key found."
 
       - name: Decrypt signing keystore
         env:
@@ -57,15 +27,24 @@ jobs:
             --output dealsaver-release.keystore \
             dealsaver-release.keystore.gpg
 
-      - name: Verify private signing key
+          echo "Keystore decrypted successfully."
+
+      - name: Test KEY_PASSWORD
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
-          echo "Testing private signing key..."
+          echo "Testing KEY_PASSWORD..."
 
-          keytool -importkeystore \
+          keytool -list \
+            -v \
+            -keystore dealsaver-release.keystore \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias "$KEY_ALIAS" \
+            >/dev/null
+
+          if keytool -importkeystore \
             -srckeystore dealsaver-release.keystore \
             -srcstoretype JKS \
             -srcstorepass "$KEYSTORE_PASSWORD" \
@@ -75,21 +54,41 @@ jobs:
             -deststoretype PKCS12 \
             -deststorepass "temporary-test-password" \
             -destkeypass "temporary-test-password" \
-            -noprompt
+            -noprompt >/dev/null 2>&1
+          then
+            echo "======================================"
+            echo "SUCCESS: KEY_PASSWORD unlocks the key."
+            echo "======================================"
+            exit 0
+          else
+            echo "KEY_PASSWORD did NOT unlock the private key."
+          fi
 
-          echo "Private signing key verified successfully."
-
-      - name: Build Release APK
-        working-directory: dealsaver-android/android
+      - name: Test KEYSTORE_PASSWORD as private-key password
         env:
-          KEYSTORE_FILE: ${{ github.workspace }}/dealsaver-release.keystore
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: |
+          echo "Testing KEYSTORE_PASSWORD as the private-key password..."
 
-      - name: Upload DealSaver Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: DealSaver-Release-APK
-          path: dealsaver-android/android/app/build/outputs/apk/release/app-release.apk
+          if keytool -importkeystore \
+            -srckeystore dealsaver-release.keystore \
+            -srcstoretype JKS \
+            -srcstorepass "$KEYSTORE_PASSWORD" \
+            -srcalias "$KEY_ALIAS" \
+            -srckeypass "$KEYSTORE_PASSWORD" \
+            -destkeystore /tmp/test-key2.p12 \
+            -deststoretype PKCS12 \
+            -deststorepass "temporary-test-password" \
+            -destkeypass "temporary-test-password" \
+            -noprompt >/dev/null 2>&1
+          then
+            echo "================================================"
+            echo "SUCCESS: KEYSTORE_PASSWORD unlocks the key."
+            echo "================================================"
+            exit 0
+          else
+            echo "KEYSTORE_PASSWORD did NOT unlock the private key."
+            echo "Neither configured password unlocks the private key."
+            exit 1
+          fi
