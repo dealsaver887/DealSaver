@@ -10,8 +10,7 @@ jobs:
     steps:
       - name: Create signing keystore
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SIGNING_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         run: |
           keytool -genkeypair \
@@ -21,17 +20,36 @@ jobs:
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -keypass "$KEY_PASSWORD" \
+            -storepass "$SIGNING_PASSWORD" \
+            -keypass "$SIGNING_PASSWORD" \
             -dname "CN=DealSaver, OU=DealSaver, O=DealSaver, L=Chicago, ST=Illinois, C=US"
+
+      - name: Verify signing key
+        env:
+          SIGNING_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          keytool -importkeystore \
+            -srckeystore dealsaver-release.keystore \
+            -srcstoretype JKS \
+            -srcstorepass "$SIGNING_PASSWORD" \
+            -srcalias "$KEY_ALIAS" \
+            -srckeypass "$SIGNING_PASSWORD" \
+            -destkeystore /tmp/test-key.p12 \
+            -deststoretype PKCS12 \
+            -deststorepass "temporary-test-password" \
+            -destkeypass "temporary-test-password" \
+            -noprompt
+
+          echo "SUCCESS: New signing key verified."
 
       - name: Encrypt signing keystore
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SIGNING_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           gpg --batch --yes \
             --pinentry-mode loopback \
-            --passphrase "$KEYSTORE_PASSWORD" \
+            --passphrase "$SIGNING_PASSWORD" \
             --symmetric \
             --cipher-algo AES256 \
             dealsaver-release.keystore
@@ -41,5 +59,5 @@ jobs:
       - name: Upload encrypted signing key
         uses: actions/upload-artifact@v4
         with:
-          name: DealSaver-Signing-Key
+          name: DealSaver-Signing-Key-New
           path: dealsaver-release.keystore.gpg
