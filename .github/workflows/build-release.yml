@@ -1,55 +1,53 @@
-name: Build DealSaver Release APK
-
+name: Build DealSaver Android Release APK
 on:
   workflow_dispatch:
-
+  push:
+    branches:
+      - main
 jobs:
-  build-release:
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout DealSaver
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-
       - name: Install Capacitor dependencies
         working-directory: dealsaver-android
         run: |
           npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
           npm install -D typescript --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
-
       - name: Configure ES module support
         working-directory: dealsaver-android
         run: npm pkg set type=module
-
+      - name: Sync Capacitor Android
+        working-directory: dealsaver-android
+        run: npx cap sync android
+      - name: Make Gradle executable
+        run: chmod +x dealsaver-android/android/gradlew
+      - name: Download encrypted signing key
+        uses: actions/download-artifact@v4
+        with:
+          name: DealSaver-Signing-Key
+          path: signing-key
       - name: Decrypt signing keystore
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          gpg --quiet --batch --yes \
+          gpg --batch --yes \
+            --pinentry-mode loopback \
+            --passphrase "$KEYSTORE_PASSWORD" \
             --decrypt \
-            --passphrase="$KEYSTORE_PASSWORD" \
-            --output "$GITHUB_WORKSPACE/dealsaver-release.keystore" \
-            dealsaver-release.keystore.gpg
-
-      - name: Sync Capacitor Android
-        working-directory: dealsaver-android
-        run: npx cap sync android
-
-      - name: Make Gradle executable
-        run: chmod +x dealsaver-android/android/gradlew
-
-      - name: Build signed Release APK
+            --output dealsaver-release.keystore \
+            signing-key/dealsaver-release.keystore.gpg
+      - name: Build Release APK
         working-directory: dealsaver-android/android
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/dealsaver-release.keystore
@@ -57,7 +55,6 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleRelease
-
       - name: Upload DealSaver Release APK
         uses: actions/upload-artifact@v4
         with:
