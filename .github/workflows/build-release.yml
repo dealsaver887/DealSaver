@@ -57,25 +57,27 @@ jobs:
             --output dealsaver-release.keystore \
             dealsaver-release.keystore.gpg
 
-      - name: Verify keystore and signing key
+      - name: Verify private signing key
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "Checking keystore..."
-          keytool -list \
-            -keystore dealsaver-release.keystore \
-            -storepass "$KEYSTORE_PASSWORD"
+          echo "Testing private signing key..."
 
-          echo "Checking signing key..."
-          keytool -list \
-            -keystore dealsaver-release.keystore \
-            -storepass "$KEYSTORE_PASSWORD" \
-            -alias "$KEY_ALIAS" \
-            -keypass "$KEY_PASSWORD"
+          keytool -importkeystore \
+            -srckeystore dealsaver-release.keystore \
+            -srcstoretype JKS \
+            -srcstorepass "$KEYSTORE_PASSWORD" \
+            -srcalias "$KEY_ALIAS" \
+            -srckeypass "$KEY_PASSWORD" \
+            -destkeystore /tmp/test-key.p12 \
+            -deststoretype PKCS12 \
+            -deststorepass "temporary-test-password" \
+            -destkeypass "temporary-test-password" \
+            -noprompt
 
-          echo "Keystore and signing key check completed."
+          echo "Private signing key verified successfully."
 
       - name: Build Release APK
         working-directory: dealsaver-android/android
