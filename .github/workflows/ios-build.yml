@@ -1,0 +1,54 @@
+
+name: DealSaver iOS Test Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "package.json"
+      - "capacitor.config.ts"
+      - "www/**"
+      - ".github/workflows/ios-build.yml"
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install project dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Capacitor iOS
+        run: npm install @capacitor/ios@8.5.2 --no-audit --no-fund
+
+      - name: Generate iOS project if missing
+        run: |
+          if [ ! -d ios ]; then
+            npx cap add ios
+          fi
+          npx cap sync ios
+
+      - name: Build iOS simulator app
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload iOS test build
+        uses: actions/upload-artifact@v4
+        with:
+          name: DealSaver-iOS-Simulator
+          path: ${{ runner.temp }}/DerivedData/Build/Products/Debug-iphonesimulator/App.app
