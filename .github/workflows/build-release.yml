@@ -1,97 +1,108 @@
-name: Build DealSaver Android Release APK
+steps:
+  - name: Checkout DealSaver
+    uses: actions/checkout@v4
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+  - name: Set up Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '22'
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  - name: Set up pnpm
+    uses: pnpm/action-setup@v4
+    with:
+      version: 10
 
-    steps:
-      - name: Checkout DealSaver
-        uses: actions/checkout@v4
+  - name: Set up Java
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '21'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+  - name: Install workspace dependencies
+    run: pnpm install --no-frozen-lockfile
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
+  - name: Build DealSaver website
+    env:
+      NODE_ENV: production
+      PORT: '5000'
+      BASE_PATH: /
+    run: pnpm --filter @workspace/dealsaver build
 
-      - name: Install Capacitor dependencies
-        working-directory: dealsaver-android
-        run: |
-          npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
-          npm install -D typescript --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
+  - name: Verify website build
+    run: |
+      test -f artifacts/dealsaver/dist/public/index.html
+      echo "DealSaver website build found."
 
-      - name: Configure ES module support
-        working-directory: dealsaver-android
-        run: npm pkg set type=module
+  - name: Copy website into Android app
+    run: |
+      rm -rf dealsaver-android/www
+      mkdir -p dealsaver-android/www
+      cp -a artifacts/dealsaver/dist/public/. dealsaver-android/www/
+      test -f dealsaver-android/www/index.html
+      echo "Website copied into Android app."
 
-      - name: Sync Capacitor Android
-        working-directory: dealsaver-android
-        run: npx cap sync android
+  - name: Install Capacitor dependencies
+    working-directory: dealsaver-android
+    run: |
+      npm install --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
+      npm install -D typescript --package-lock=false --registry=https://registry.npmjs.org --no-audit --no-fund
 
-      - name: Make Gradle executable
-        run: chmod +x dealsaver-android/android/gradlew
+  - name: Configure ES module support
+    working-directory: dealsaver-android
+    run: npm pkg set type=module
 
-      - name: Verify encrypted signing key
-        run: |
-          test -f dealsaver-release.keystore.gpg
-          echo "Encrypted signing key found."
+  - name: Sync Capacitor Android
+    working-directory: dealsaver-android
+    run: npx cap sync android
 
-      - name: Decrypt signing keystore
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: |
-          gpg --batch \
-            --pinentry-mode loopback \
-            --passphrase "$KEYSTORE_PASSWORD" \
-            --decrypt \
-            --output dealsaver-release.keystore \
-            dealsaver-release.keystore.gpg
+  - name: Verify encrypted signing key
+    run: |
+      test -f dealsaver-release.keystore.gpg
+      echo "Encrypted signing key found."
 
-          echo "Keystore decrypted successfully."
+  - name: Decrypt signing keystore
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    run: |
+      gpg --batch \
+        --pinentry-mode loopback \
+        --passphrase "$KEYSTORE_PASSWORD" \
+        --decrypt \
+        --output dealsaver-release.keystore \
+        dealsaver-release.keystore.gpg
 
-      - name: Test keystore password against private key
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        run: |
-          echo "Testing whether KEYSTORE_PASSWORD unlocks the private key..."
+      echo "Keystore decrypted successfully."
 
-          keytool -importkeystore \
-            -srckeystore dealsaver-release.keystore \
-            -srcstoretype JKS \
-            -srcstorepass "$KEYSTORE_PASSWORD" \
-            -srcalias "$KEY_ALIAS" \
-            -srckeypass "$KEYSTORE_PASSWORD" \
-            -destkeystore /tmp/test-key.p12 \
-            -deststoretype PKCS12 \
-            -deststorepass "temporary-test-password" \
-            -destkeypass "temporary-test-password" \
-            -noprompt
+  - name: Test keystore password against private key
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+    run: |
+      keytool -importkeystore \
+        -srckeystore dealsaver-release.keystore \
+        -srcstoretype JKS \
+        -srcstorepass "$KEYSTORE_PASSWORD" \
+        -srcalias "$KEY_ALIAS" \
+        -srckeypass "$KEYSTORE_PASSWORD" \
+        -destkeystore /tmp/test-key.p12 \
+        -deststoretype PKCS12 \
+        -deststorepass "temporary-test-password" \
+        -destkeypass "temporary-test-password" \
+        -noprompt
 
-          echo "SUCCESS: KEYSTORE_PASSWORD unlocks the private signing key."
+      echo "Signing key test passed."
 
-      - name: Build Release APK
-        working-directory: dealsaver-android/android
-        env:
-          KEYSTORE_FILE: ${{ github.workspace }}/dealsaver-release.keystore
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+  - name: Build Release APK
+    working-directory: dealsaver-android/android
+    env:
+      KEYSTORE_FILE: ${{ github.workspace }}/dealsaver-release.keystore
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    run: ./gradlew assembleRelease
 
-      - name: Upload DealSaver Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: DealSaver-Release-APK
-          path: dealsaver-android/android/app/build/outputs/apk/release/app-release.apk
+  - name: Upload DealSaver Release APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: DealSaver-Release-APK
+      path: dealsaver-android/android/app/build/outputs/apk/release/app-release.apk
